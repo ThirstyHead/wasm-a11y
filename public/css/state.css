@@ -1,0 +1,31 @@
+/* SMACSS State: Augment and override styles based on runtime state */
+
+.is-hidden {
+  display: none !important;
+}
+
+.is-dragover {
+  border-color: var(--color-primary) !important;
+  background-color: var(--color-primary-light) !important;
+  transform: scale(1.01);
+}
+
+.is-disabled, [disabled] {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.is-processing {
+  cursor: wait !important;
+}
+
+.is-active {
+  border-color: var(--color-primary) !important;
+}
+
+/* Accessibility Focus States */
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}

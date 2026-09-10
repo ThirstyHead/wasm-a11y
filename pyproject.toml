@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wasm-a11y"
+version = "0.1.0"
+description = "WebAssembly zero-install digital accessibility audit and remediation studio"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "ThirstyHead" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "build>=1.2",
+    "playwright>=1.40",
+]
+
+[project.scripts]
+wasm-a11y = "wasm_a11y.cli:main"
+wasm-a11y-studio = "wasm_a11y.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,410 @@
+/* SMACSS Modules: Reusable UI components (brand, dropzone, buttons, scorecards, badges, progress) */
+
+/* Brand Component */
+.m-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.m-brand__logo {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.m-brand__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  margin-bottom: 0;
+}
+
+/* Trust Badge (Zero Server Egress Signal) */
+.m-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Dropzone Component */
+.m-dropzone {
+  background-color: var(--color-surface);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 3.5rem 2rem;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  position: relative;
+}
+
+.m-dropzone__icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.m-dropzone__title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.m-dropzone__instructions {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+}
+
+.m-dropzone__input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.m-dropzone__meta {
+  font-size: 0.875rem;
+  color: var(--color-text-subtle);
+  margin-top: 1.25rem;
+  margin-bottom: 0;
+}
+
+/* Buttons */
+.m-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--border-radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.m-button--primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.m-button--primary:hover {
+  background-color: var(--color-primary-hover);
+  color: var(--color-primary-contrast);
+}
+
+.m-button--success {
+  background-color: #059669;
+  color: #ffffff;
+}
+
+.m-button--success:hover {
+  background-color: #047857;
+  color: #ffffff;
+}
+
+.m-button--secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.m-button--secondary:hover {
+  background-color: var(--color-surface-muted);
+  border-color: var(--color-text-subtle);
+}
+
+/* Card Component */
+.m-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+
+/* Progress Bar & Status Text */
+.m-progress-bar {
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.m-progress-bar::-webkit-progress-bar {
+  background-color: var(--color-surface-muted);
+}
+
+.m-progress-bar::-webkit-progress-value {
+  background-color: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.m-status-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* Scorecard Banner Box */
+.m-scorecard-banner {
+  background-color: var(--color-surface-muted);
+  border-left: 5px solid var(--color-primary);
+  padding: 1.25rem 1.5rem;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+  color: var(--color-text);
+}
+
+/* Badges */
+.m-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.m-badge--resolved {
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+}
+
+.m-badge--action {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border: 1px solid var(--color-warning-border);
+}
+
+.m-badge--pill {
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+/* Toolbar */
+.m-toolbar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 1.5rem 0 2rem;
+}
+
+/* Action Checklist */
+.m-checklist {
+  list-style: none;
+  margin-left: 0;
+  padding: 0;
+}
+
+.m-checklist__item {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.m-checklist__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.m-checklist__checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.m-checklist__body {
+  margin-left: 2rem;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+/* Guide Banner (Matches Desktop Qt #guide_banner) */
+.m-guide-banner {
+  background-color: var(--color-guide-bg);
+  border: 1px solid var(--color-guide-border);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 0.925rem;
+  color: var(--color-guide-text);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .m-guide-banner {
+    background-color: #172554;
+    border-color: #1e40af;
+    color: #bfdbfe;
+  }
+}
+
+/* Two-Pane Storytelling (Matches Desktop QGroupBox#pane_before, QGroupBox#pane_after) */
+.m-pane {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  min-height: 480px;
+}
+
+.m-pane__header {
+  margin-bottom: 0.75rem;
+}
+
+.m-pane__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.m-pane__subtitle {
+  font-size: 0.825rem;
+  color: var(--color-text-subtle);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.m-pane__toolbar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.m-pane__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Center Remediation Bridge (Matches Desktop QFrame#center_bridge) */
+.m-center-bridge {
+  background-color: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+}
+
+.m-center-bridge__arrow {
+  font-size: 28px;
+  color: #64748b;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.m-button--bridge {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #1d4ed8;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.m-button--bridge:hover {
+  background-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.m-button--bridge:disabled {
+  background-color: #94a3b8;
+  border-color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Dialog / Modal (Matches Desktop ReportViewerDialog) */
+.m-dialog {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0;
+  max-width: 900px;
+  width: 90vw;
+  max-height: 85vh;
+  background: var(--color-surface);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2);
+  margin: auto;
+}
+
+.m-dialog::backdrop {
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.m-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: var(--color-surface-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.m-dialog__body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(85vh - 140px);
+}
+
+.m-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface-muted);
+}
+
