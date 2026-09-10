@@ -34,7 +34,12 @@ A WebAssembly zero-install toolkit for auditing and remediating documents for di
 
 ## Quick Start
 
-### 1. Launching the Local Web Studio CLI
+### 1. Web Deployment (GitHub Pages)
+
+The studio is automatically deployed via GitHub Actions to GitHub Pages:
+👉 **Live Studio**: `https://thirstyhead.github.io/wasm-a11y/`
+
+### 2. Launching the Local Web Studio CLI
 
 Install `wasm-a11y` in your Python environment:
 

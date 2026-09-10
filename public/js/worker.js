@@ -29,13 +29,14 @@ async function initializeWorker() {
 
   self.postMessage({ type: "STATUS", message: "Installing wasm-a11y engine wheels..." });
   
-  // Dynamically resolve origin for wheels
-  const origin = self.location.origin;
+  // Dynamically resolve base URL for wheels relative to worker script
+  // Handles root domains, localhost, and GitHub Pages subpaths (e.g. /wasm-a11y/)
+  const baseUrl = new URL("../wheels/", self.location.href).href;
   const wheelUrls = [
-    `${origin}/wheels/engine_a11y-0.4.0-py3-none-any.whl`,
-    `${origin}/wheels/docx_a11y-0.5.0-py3-none-any.whl`,
-    `${origin}/wheels/pptx_a11y-0.5.0-py3-none-any.whl`,
-    `${origin}/wheels/xlsx_a11y-0.1.0-py3-none-any.whl`
+    new URL("engine_a11y-0.4.0-py3-none-any.whl", baseUrl).href,
+    new URL("docx_a11y-0.5.0-py3-none-any.whl", baseUrl).href,
+    new URL("pptx_a11y-0.5.0-py3-none-any.whl", baseUrl).href,
+    new URL("xlsx_a11y-0.1.0-py3-none-any.whl", baseUrl).href
   ];
 
   for (const url of wheelUrls) {
