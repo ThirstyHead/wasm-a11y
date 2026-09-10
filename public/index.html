@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://cdn.jsdelivr.net https://pypi.org; img-src 'self' data: blob:;">
+  <meta name="description" content="Zero-install, in-browser digital accessibility auditor and remediator for Word, PowerPoint, Excel, and PDF files. Runs 100% locally via WebAssembly.">
+  <title>wasm-a11y — Zero-Install In-Browser Document Accessibility Studio</title>
+  
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/modules.css">
+  <link rel="stylesheet" href="css/state.css">
+</head>
+<body>
+  <a href="#main-content" class="u-skip-link">Skip to main content</a>
+  
+  <header class="l-header" role="banner">
+    <div class="l-container l-header__inner">
+      <div class="m-brand">
+        <span class="m-brand__logo" aria-hidden="true">🛡️</span>
+        <div>
+          <h1 class="m-brand__title">wasm-a11y</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-subtle);">Zero-Install Document Accessibility Studio</p>
+        </div>
+      </div>
+      <div class="m-trust-badge" role="status" aria-label="Privacy guarantee: 100% client side execution, zero server upload">
+        <span aria-hidden="true">🔒</span>
+        <span>100% Client-Side / Zero Server Upload</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="l-main" role="main">
+    <div class="l-container">
+      
+      <!-- Drag and Drop Target -->
+      <section class="l-section" aria-labelledby="dropzone-title">
+        <div class="m-dropzone" id="dropzone" tabindex="0" role="region" aria-label="Document file uploader">
+          <div class="m-dropzone__icon" aria-hidden="true">📄</div>
+          <h2 id="dropzone-title" class="m-dropzone__title">Audit & Remediate Documents</h2>
+          <p class="m-dropzone__instructions">
+            Drag and drop your Word (<code>.docx</code>), PowerPoint (<code>.pptx</code>), Excel (<code>.xlsx</code>), or PDF (<code>.pdf</code>) document here, or choose a file.
+          </p>
+          <input type="file" id="file-input" class="m-dropzone__input" accept=".docx,.pptx,.xlsx,.pdf" aria-label="Upload file for accessibility audit">
+          <button type="button" id="browse-btn" class="m-button m-button--primary">
+            Browse Local File
+          </button>
+          <p class="m-dropzone__meta">
+            Powered by Pyodide WebAssembly. Documents never leave your device.
+          </p>
+        </div>
+      </section>
+
+      <!-- Processing State -->
+      <section id="processing-section" class="l-section is-hidden" aria-live="polite" aria-atomic="true">
+        <div class="m-card">
+          <h3 id="progress-heading">Processing Document in WebAssembly...</h3>
+          <progress id="progress-bar" class="m-progress-bar" max="100" aria-labelledby="progress-heading"></progress>
+          <p id="progress-status" class="m-status-text">Warming up Pyodide runtime...</p>
+        </div>
+      </section>
+
+      <!-- Results & Remediation State -->
+      <section id="results-section" class="l-section is-hidden" aria-labelledby="results-title">
+        <h2 id="results-title">Accessibility Results & Remediation</h2>
+
+        <div id="scorecard-container"></div>
+
+        <div class="m-toolbar">
+          <button id="download-remediated-btn" class="m-button m-button--success is-disabled" disabled>
+            💾 Download Remediated Document
+          </button>
+          <button id="download-report-btn" class="m-button m-button--secondary">
+            📄 Download HTML Report
+          </button>
+          <button id="reset-btn" class="m-button m-button--secondary">
+            🔄 Audit Another File
+          </button>
+        </div>
+
+        <div id="fixes-container"></div>
+        <div id="checklist-container"></div>
+        <div id="report-preview-container" class="m-card"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="l-footer" role="contentinfo">
+    <div class="l-container">
+      <p>
+        <strong>wasm-a11y</strong> — Built with standards-compliant HTML5, SMACSS, and WebAssembly.
+        Conforms to WCAG 2.2 Level AA / Section 508.
+      </p>
+    </div>
+  </footer>
+
+  <div id="a11y-announcer" class="u-visually-hidden" aria-live="assertive"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
