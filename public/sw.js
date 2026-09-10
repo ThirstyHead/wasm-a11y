@@ -16,6 +16,7 @@ const PRECACHE_URLS = [
   "./css/state.css",
   "./js/app.js",
   "./js/worker.js",
+  "./wheels/wcag_contrast_ratio-0.9-py3-none-any.whl",
   "./wheels/engine_a11y-0.4.0-py3-none-any.whl",
   "./wheels/docx_a11y-0.5.0-py3-none-any.whl",
   "./wheels/pptx_a11y-0.5.0-py3-none-any.whl",

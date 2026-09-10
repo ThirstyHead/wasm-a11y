@@ -62,6 +62,21 @@ def build_wheels(
                     f"Failed to build wheel for {pkg}:\n{result.stderr}\nFallback:\n{fallback_res.stderr}"
                 )
 
+    # Ensure wcag-contrast-ratio wheel is also bundled if missing
+    wcag_wheels = list(target_dir.glob("wcag_contrast_ratio*.whl"))
+    if not wcag_wheels:
+        cmd_wcag = [
+            sys.executable,
+            "-m",
+            "pip",
+            "wheel",
+            "--no-deps",
+            "-w",
+            str(target_dir),
+            "wcag-contrast-ratio",
+        ]
+        subprocess.run(cmd_wcag, capture_output=True, text=True)
+
     built_wheels = list(target_dir.glob("*.whl"))
     return built_wheels
 
