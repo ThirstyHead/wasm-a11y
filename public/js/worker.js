@@ -19,13 +19,13 @@ async function initializeWorker() {
     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
   });
 
-  self.postMessage({ type: "STATUS", message: "Loading core XML and C extensions (lxml)..." });
-  await pyodideInstance.loadPackage(["micropip", "lxml"]);
+  self.postMessage({ type: "STATUS", message: "Loading core XML and C extensions (lxml, pyyaml)..." });
+  await pyodideInstance.loadPackage(["micropip", "lxml", "pyyaml"]);
 
   const micropip = pyodideInstance.pyimport("micropip");
 
-  self.postMessage({ type: "STATUS", message: "Installing pure Python dependencies (openpyxl, markdown)..." });
-  await micropip.install(["openpyxl", "markdown", "wcag-contrast-ratio", "pypdf"]);
+  self.postMessage({ type: "STATUS", message: "Installing pure Python dependencies (openpyxl, markdown, pypdf)..." });
+  await micropip.install(["openpyxl", "markdown", "pypdf"]);
 
   self.postMessage({ type: "STATUS", message: "Installing wasm-a11y engine wheels..." });
   
@@ -33,6 +33,7 @@ async function initializeWorker() {
   // Handles root domains, localhost, and GitHub Pages subpaths (e.g. /wasm-a11y/)
   const baseUrl = new URL("../wheels/", self.location.href).href;
   const wheelUrls = [
+    new URL("wcag_contrast_ratio-0.9-py3-none-any.whl", baseUrl).href,
     new URL("engine_a11y-0.4.0-py3-none-any.whl", baseUrl).href,
     new URL("docx_a11y-0.5.0-py3-none-any.whl", baseUrl).href,
     new URL("pptx_a11y-0.5.0-py3-none-any.whl", baseUrl).href,
