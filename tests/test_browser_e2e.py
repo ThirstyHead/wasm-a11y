@@ -128,3 +128,49 @@ def test_zero_third_party_telemetry(server):
         if "Executable doesn't exist" in str(exc):
             pytest.skip("Playwright chromium browser not installed in this environment")
         raise
+
+
+def test_two_pane_storytelling_flow(server):
+    if not HAS_PLAYWRIGHT or sync_playwright is None:
+        pytest.skip("Playwright not installed")
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(server)
+            page.wait_for_load_state("networkidle")
+
+            # Guide banner check
+            banner = page.locator("#guide-banner")
+            assert banner.is_visible()
+            text = banner.text_content() or ""
+            assert "Step 1: Add documents on left" in text
+
+            # Pane Before check
+            pane_before = page.locator("#pane-before")
+            assert pane_before.is_visible()
+            text_before = pane_before.text_content() or ""
+            assert "1. Before: Original Documents" in text_before
+
+            # Center bridge check
+            center_bridge = page.locator("#center-bridge")
+            assert center_bridge.is_visible()
+            remediate_btn = page.locator("#btn-remediate-primary")
+            assert remediate_btn.is_visible()
+            assert page.evaluate("document.getElementById('btn-remediate-primary').hasAttribute('disabled')")
+
+            # Pane After check
+            pane_after = page.locator("#pane-after")
+            assert pane_after.is_visible()
+            text_after = pane_after.text_content() or ""
+            assert "2. After: Remediated Files & Reports" in text_after
+
+            # Report dialog check
+            report_dialog = page.locator("#report-dialog")
+            assert report_dialog.count() == 1
+
+            browser.close()
+    except Exception as exc:
+        if "Executable doesn't exist" in str(exc):
+            pytest.skip("Playwright chromium browser not installed in this environment")
+        raise

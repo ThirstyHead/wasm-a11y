@@ -44,6 +44,30 @@ def test_index_html_structure():
     assert 'href="css/theme.css"' in content
 
 
+def test_two_pane_storytelling_layout_and_banner():
+    index_file = PUBLIC_DIR / "index.html"
+    content = index_file.read_text(encoding="utf-8")
+
+    # Guide banner
+    assert 'id="guide-banner"' in content
+    assert "Step 1: Add documents on left" in content
+    assert "Step 2: Remediate in center" in content
+    assert "Step 3: Inspect on right" in content
+
+    # Two-pane storytelling sections
+    assert 'id="pane-before"' in content
+    assert "1. Before: Original Documents" in content
+
+    assert 'id="center-bridge"' in content
+    assert "Fix & Audit" in content
+
+    assert 'id="pane-after"' in content
+    assert "2. After: Remediated Files & Reports" in content
+
+    # Report viewer modal dialog
+    assert '<dialog id="report-dialog"' in content
+
+
 def test_css_theme_wcag_contrast_and_focus():
     state_css = (CSS_DIR / "state.css").read_text(encoding="utf-8")
     assert ":focus-visible" in state_css or ":focus" in state_css

@@ -249,3 +249,162 @@
   font-size: 0.95rem;
   color: var(--color-text-muted);
 }
+
+/* Guide Banner (Matches Desktop Qt #guide_banner) */
+.m-guide-banner {
+  background-color: var(--color-guide-bg);
+  border: 1px solid var(--color-guide-border);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 0.925rem;
+  color: var(--color-guide-text);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .m-guide-banner {
+    background-color: #172554;
+    border-color: #1e40af;
+    color: #bfdbfe;
+  }
+}
+
+/* Two-Pane Storytelling (Matches Desktop QGroupBox#pane_before, QGroupBox#pane_after) */
+.m-pane {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  min-height: 480px;
+}
+
+.m-pane__header {
+  margin-bottom: 0.75rem;
+}
+
+.m-pane__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.m-pane__subtitle {
+  font-size: 0.825rem;
+  color: var(--color-text-subtle);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.m-pane__toolbar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.m-pane__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Center Remediation Bridge (Matches Desktop QFrame#center_bridge) */
+.m-center-bridge {
+  background-color: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+}
+
+.m-center-bridge__arrow {
+  font-size: 28px;
+  color: #64748b;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.m-button--bridge {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #1d4ed8;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.m-button--bridge:hover {
+  background-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.m-button--bridge:disabled {
+  background-color: #94a3b8;
+  border-color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Dialog / Modal (Matches Desktop ReportViewerDialog) */
+.m-dialog {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0;
+  max-width: 900px;
+  width: 90vw;
+  max-height: 85vh;
+  background: var(--color-surface);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2);
+  margin: auto;
+}
+
+.m-dialog::backdrop {
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.m-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: var(--color-surface-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.m-dialog__body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(85vh - 140px);
+}
+
+.m-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface-muted);
+}
+

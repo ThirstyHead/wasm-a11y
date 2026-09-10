@@ -38,6 +38,23 @@
   gap: 1.5rem;
 }
 
+/* Storyboard Two-Pane Layout (Matches Desktop Splitter Architecture) */
+.l-storyboard {
+  display: grid;
+  grid-template-columns: 1fr 200px 1fr;
+  gap: 1.25rem;
+  align-items: stretch;
+  margin-top: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 960px) {
+  .l-storyboard {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
 .l-footer {
   flex-shrink: 0;
   background-color: var(--color-surface);

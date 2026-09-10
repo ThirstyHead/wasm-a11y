@@ -36,7 +36,7 @@ def test_server_serves_index_and_coop_coep_headers():
 
         body = resp.read().decode("utf-8")
         assert "wasm-a11y" in body
-        assert "Audit & Remediate Documents" in body
+        assert "Document Accessibility Studio" in body
     finally:
         stop_event.set()
         # Ping server once to release handle if blocked on handle_request

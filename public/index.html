@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://cdn.jsdelivr.net https://pypi.org; img-src 'self' data: blob:;">
   <meta name="description" content="Zero-install, in-browser digital accessibility auditor and remediator for Word, PowerPoint, Excel, and PDF files. Runs 100% locally via WebAssembly.">
-  <title>wasm-a11y — Zero-Install In-Browser Document Accessibility Studio</title>
+  <title>wasm-a11y — Document Accessibility Studio</title>
   
   <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/base.css">
@@ -16,13 +16,14 @@
 <body>
   <a href="#main-content" class="u-skip-link">Skip to main content</a>
   
+  <!-- Header matching Desktop Suite -->
   <header class="l-header" role="banner">
     <div class="l-container l-header__inner">
       <div class="m-brand">
         <span class="m-brand__logo" aria-hidden="true">🛡️</span>
         <div>
           <h1 class="m-brand__title">wasm-a11y</h1>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-subtle);">Zero-Install Document Accessibility Studio</p>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-subtle);">Document Accessibility Studio</p>
         </div>
       </div>
       <div class="m-trust-badge" role="status" aria-label="Privacy guarantee: 100% client side execution, zero server upload">
@@ -35,64 +36,165 @@
   <main id="main-content" class="l-main" role="main">
     <div class="l-container">
       
-      <!-- Drag and Drop Target -->
-      <section class="l-section" aria-labelledby="dropzone-title">
-        <div class="m-dropzone" id="dropzone" tabindex="0" role="region" aria-label="Document file uploader">
-          <div class="m-dropzone__icon" aria-hidden="true">📄</div>
-          <h2 id="dropzone-title" class="m-dropzone__title">Audit & Remediate Documents</h2>
-          <p class="m-dropzone__instructions">
-            Drag and drop your Word (<code>.docx</code>), PowerPoint (<code>.pptx</code>), Excel (<code>.xlsx</code>), or PDF (<code>.pdf</code>) document here, or choose a file.
-          </p>
-          <input type="file" id="file-input" class="m-dropzone__input" accept=".docx,.pptx,.xlsx,.pdf" aria-label="Upload file for accessibility audit">
-          <button type="button" id="browse-btn" class="m-button m-button--primary">
-            Browse Local File
+      <!-- Guide Banner matching Desktop suite -->
+      <aside id="guide-banner" class="m-guide-banner" role="note" aria-label="Workflow guide">
+        <span>Step 1: Add documents on left ➔ Step 2: Remediate in center ➔ Step 3: Inspect on right</span>
+        <span class="u-visually-hidden">Follow these 3 steps to remediate files.</span>
+      </aside>
+
+      <!-- Two-Pane Storyboard Layout matching Desktop GUI -->
+      <div class="l-storyboard">
+        
+        <!-- Left Pane: 1. Before: Original Documents -->
+        <section id="pane-before" class="m-pane" aria-labelledby="pane-before-title">
+          <div class="m-pane__header">
+            <h2 id="pane-before-title" class="m-pane__title">1. Before: Original Documents</h2>
+            <p class="m-pane__subtitle">Select documents needing accessibility remediation. Original files remain safe and unmodified.</p>
+            <div class="m-pane__toolbar">
+              <button type="button" id="browse-btn" class="m-button m-button--secondary">
+                📄 Add File...
+              </button>
+              <button type="button" id="clear-btn" class="m-button m-button--secondary" disabled>
+                🗑️ Clear
+              </button>
+            </div>
+          </div>
+
+          <div class="m-pane__content">
+            <!-- Dropzone when no file selected -->
+            <div class="m-dropzone" id="dropzone" tabindex="0" role="region" aria-label="Document file uploader">
+              <div class="m-dropzone__icon" aria-hidden="true">📥</div>
+              <h3 class="m-dropzone__title">Drop document here</h3>
+              <p class="m-dropzone__instructions">
+                Word (<code>.docx</code>), PowerPoint (<code>.pptx</code>), Excel (<code>.xlsx</code>), or PDF (<code>.pdf</code>)
+              </p>
+              <input type="file" id="file-input" class="m-dropzone__input" accept=".docx,.pptx,.xlsx,.pdf" aria-label="Upload file for accessibility audit">
+              <p class="m-dropzone__meta">Runs 100% locally via WebAssembly</p>
+            </div>
+
+            <!-- Before File Table / Details when file loaded -->
+            <div id="before-file-view" class="is-hidden" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div class="m-card" style="padding: 1rem; border-left: 4px solid var(--color-primary);">
+                <div style="font-weight: 700; font-size: 1rem;" id="loaded-filename">document.docx</div>
+                <div style="font-size: 0.85rem; color: var(--color-text-subtle); margin-top: 0.25rem;" id="loaded-filesize">0 KB</div>
+                <div style="margin-top: 0.75rem;">
+                  <span class="m-badge m-badge--pill" id="loaded-status-badge">Loaded & Ready</span>
+                </div>
+              </div>
+              <div id="before-findings-preview" style="font-size: 0.875rem; color: var(--color-text-muted);">
+                Click "Fix & Audit ➔" in the center bridge to inspect and remediate accessibility barriers.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Center Bridge: Remediation Flow -->
+        <section id="center-bridge" class="m-center-bridge" aria-labelledby="center-bridge-title">
+          <h3 id="center-bridge-title" class="u-visually-hidden">Remediation Action</h3>
+          <div class="m-center-bridge__arrow" aria-hidden="true">➔</div>
+          
+          <button type="button" id="btn-remediate-primary" class="m-button--bridge" disabled>
+            ✨ Fix & Audit ➔
           </button>
-          <p class="m-dropzone__meta">
-            Powered by Pyodide WebAssembly. Documents never leave your device.
-          </p>
-        </div>
-      </section>
+          
+          <label style="font-size: 0.85rem; color: var(--color-text); display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+            <input type="checkbox" id="chk-autofix" checked>
+            <span>Auto-fix barriers</span>
+          </label>
 
-      <!-- Processing State -->
-      <section id="processing-section" class="l-section is-hidden" aria-live="polite" aria-atomic="true">
-        <div class="m-card">
-          <h3 id="progress-heading">Processing Document in WebAssembly...</h3>
-          <progress id="progress-bar" class="m-progress-bar" max="100" aria-labelledby="progress-heading"></progress>
-          <p id="progress-status" class="m-status-text">Warming up Pyodide runtime...</p>
-        </div>
-      </section>
+          <progress id="progress-bar" class="m-progress-bar is-hidden" max="100" value="0" aria-label="Remediation progress"></progress>
+          <div id="progress-status" class="m-status-text" style="font-size: 0.85rem; font-weight: 600;">Ready</div>
+        </section>
 
-      <!-- Results & Remediation State -->
-      <section id="results-section" class="l-section is-hidden" aria-labelledby="results-title">
-        <h2 id="results-title">Accessibility Results & Remediation</h2>
+        <!-- Right Pane: 2. After: Remediated Files & Reports -->
+        <section id="pane-after" class="m-pane" aria-labelledby="pane-after-title">
+          <div class="m-pane__header">
+            <h2 id="pane-after-title" class="m-pane__title">2. After: Remediated Files & Reports</h2>
+            <p class="m-pane__subtitle">Accessible output documents. Review resolved barriers and remaining author actions.</p>
+          </div>
 
-        <div id="scorecard-container"></div>
+          <div class="m-pane__content">
+            <!-- Empty state placeholder -->
+            <div id="after-empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 250px; text-align: center; color: var(--color-text-subtle); border: 2px dashed var(--color-border); border-radius: 8px; padding: 1.5rem;">
+              <span style="font-size: 2rem; margin-bottom: 0.5rem;" aria-hidden="true">📊</span>
+              <p style="margin: 0; font-weight: 600;">No Remediated Output Yet</p>
+              <p style="margin: 0.25rem 0 0; font-size: 0.825rem;">Load a document and click "Fix & Audit ➔" to generate accessible files.</p>
+            </div>
 
-        <div class="m-toolbar">
-          <button id="download-remediated-btn" class="m-button m-button--success is-disabled" disabled>
-            💾 Download Remediated Document
-          </button>
-          <button id="download-report-btn" class="m-button m-button--secondary">
-            📄 Download HTML Report
-          </button>
-          <button id="reset-btn" class="m-button m-button--secondary">
-            🔄 Audit Another File
-          </button>
-        </div>
+            <!-- Results View -->
+            <div id="after-results-view" class="is-hidden" style="display: none; flex-direction: column; gap: 1rem;">
+              <div class="m-card" style="padding: 1rem; border-left: 4px solid var(--color-success);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <span style="font-weight: 700; font-size: 1rem;" id="after-filename">remediated-document.docx</span>
+                  <span class="m-badge m-badge--resolved" id="after-score-badge">100% Score</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--color-text-subtle);" id="after-filesize">Output ready</div>
+              </div>
 
-        <div id="fixes-container"></div>
-        <div id="checklist-container"></div>
-        <div id="report-preview-container" class="m-card"></div>
-      </section>
+              <!-- Quick Metrics -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="m-card" style="padding: 0.75rem; text-align: center;">
+                  <div style="font-size: 1.25rem; font-weight: 800; color: var(--color-success);" id="stat-fixed">0</div>
+                  <div style="font-size: 0.75rem; color: var(--color-text-subtle); text-transform: uppercase; font-weight: 600;">Resolved Barriers</div>
+                </div>
+                <div class="m-card" style="padding: 0.75rem; text-align: center;">
+                  <div style="font-size: 1.25rem; font-weight: 800; color: var(--color-warning);" id="stat-actions">0</div>
+                  <div style="font-size: 0.75rem; color: var(--color-text-subtle); text-transform: uppercase; font-weight: 600;">Human Actions</div>
+                </div>
+              </div>
+
+              <!-- Actions Toolbar matching Desktop Suite -->
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                <button type="button" id="download-remediated-btn" class="m-button m-button--success" style="width: 100%;">
+                  💾 Download Remediated Document
+                </button>
+                <button type="button" id="view-report-btn" class="m-button m-button--primary" style="width: 100%;">
+                  🔍 View Report In-App
+                </button>
+                <button type="button" id="download-report-btn" class="m-button m-button--secondary" style="width: 100%;">
+                  📄 Download HTML Report
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
 
     </div>
   </main>
 
+  <!-- In-App Report Viewer Modal Dialog (Matches Desktop ReportViewerDialog) -->
+  <dialog id="report-dialog" class="m-dialog" aria-labelledby="report-dialog-title">
+    <div class="m-dialog__header">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span aria-hidden="true" style="font-size: 1.25rem;">📊</span>
+        <h2 id="report-dialog-title" style="margin: 0; font-size: 1.15rem; font-weight: 700;">Accessibility Audit & Remediation Report</h2>
+      </div>
+      <button type="button" id="close-dialog-btn" class="m-button m-button--secondary" style="padding: 4px 10px; font-size: 0.85rem;" aria-label="Close report dialog">
+        ✕ Close
+      </button>
+    </div>
+    
+    <div class="m-dialog__body" id="report-dialog-body">
+      <!-- Report rendered content dynamically populated here -->
+    </div>
+
+    <div class="m-dialog__footer">
+      <button type="button" id="dialog-download-report-btn" class="m-button m-button--primary">
+        📄 Download HTML Report
+      </button>
+      <button type="button" id="dialog-close-bottom-btn" class="m-button m-button--secondary">
+        Close
+      </button>
+    </div>
+  </dialog>
+
   <footer class="l-footer" role="contentinfo">
     <div class="l-container">
       <p>
-        <strong>wasm-a11y</strong> — Built with standards-compliant HTML5, SMACSS, and WebAssembly.
-        Conforms to WCAG 2.2 Level AA / Section 508.
+        <strong>wasm-a11y</strong> — Cohesive digital accessibility suite powered by WebAssembly.
+        Conforms to WCAG 2.2 Level AA / Section 508. Zero server egress.
       </p>
     </div>
   </footer>
