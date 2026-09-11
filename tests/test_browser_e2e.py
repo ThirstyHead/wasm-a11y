@@ -181,12 +181,21 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
         pytest.skip("Playwright not installed")
     try:
         # Create minimal test PDF
-        import pypdf
-        writer = pypdf.PdfWriter()
-        writer.add_blank_page(width=72, height=72)
         test_pdf = tmp_path / "sample-test.pdf"
-        with open(test_pdf, "wb") as f:
-            writer.write(f)
+        try:
+            import pypdf
+            writer = pypdf.PdfWriter()
+            writer.add_blank_page(width=72, height=72)
+            with open(test_pdf, "wb") as f:
+                writer.write(f)
+        except ImportError:
+            test_pdf.write_bytes(
+                b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
+                b"2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
+                b"3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 72 72] >>\nendobj\n"
+                b"xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n"
+                b"trailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n186\n%%EOF\n"
+            )
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
