@@ -127,6 +127,7 @@ try:
     elif ext == "pdf":
         from engine_a11y.profile import get_pdf_profile as get_profile
         # Pure Python PDF audit & remediation bridge using pypdf
+        import os
         import logging
         import warnings
         logging.getLogger("pypdf").setLevel(logging.ERROR)
@@ -214,7 +215,6 @@ try:
 
         fixes = []
         if not has_title:
-            import os
             base_title = os.path.splitext(os.path.basename(in_path))[0].replace("-", " ").replace("_", " ").title()
             writer.add_metadata({NameObject("/Title"): TextStringObject(base_title)})
             fixes.append("pdf-doc-title")
