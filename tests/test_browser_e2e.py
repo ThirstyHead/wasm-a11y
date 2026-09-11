@@ -200,6 +200,8 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
+            console_warnings = []
+            page.on("console", lambda msg: console_warnings.append(msg.text) if msg.type in ("warning", "error") else None)
             page.goto(server)
 
             # Wait for Pyodide worker initialization
@@ -249,6 +251,10 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             body_text = report_body.inner_text()
             assert "Language of Page" in body_text or "3.1.1" in body_text
             assert "Info and Relationships" in body_text or "1.3.1" in body_text
+
+            # Verify no spurious pypdf or Pyodide xref warning logs polluted the console
+            pypdf_warnings = [w for w in console_warnings if "Ignoring wrong pointing object" in w]
+            assert len(pypdf_warnings) == 0, f"Spurious pypdf console warnings detected: {pypdf_warnings}"
 
             browser.close()
     except Exception as exc:

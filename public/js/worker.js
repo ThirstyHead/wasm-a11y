@@ -52,6 +52,13 @@ await micropip.install('${url}', deps=False)
     `);
   }
 
+  await pyodideInstance.runPythonAsync(`
+import logging
+import warnings
+logging.getLogger("pypdf").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", module="pypdf")
+  `);
+
   isInitialized = true;
   self.postMessage({ type: "READY" });
 }
@@ -114,6 +121,10 @@ try:
     elif ext == "pdf":
         from engine_a11y.profile import get_pdf_profile as get_profile
         # Pure Python PDF audit bridge using pypdf
+        import logging
+        import warnings
+        logging.getLogger("pypdf").setLevel(logging.ERROR)
+        warnings.filterwarnings("ignore", module="pypdf")
         import pypdf
         reader = pypdf.PdfReader(in_path)
         has_title = bool(reader.metadata and reader.metadata.title)
