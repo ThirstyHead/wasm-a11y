@@ -40,7 +40,7 @@ async function initializeWorker() {
       "pypdf-6.18.0-py3-none-any.whl",
       "python_docx_ng-2.1.0-py3-none-any.whl",
       "python_pptx-1.0.2-py3-none-any.whl",
-      "engine_a11y-0.4.0-py3-none-any.whl",
+      "engine_a11y-0.4.1-py3-none-any.whl",
       "docx_a11y-0.5.0-py3-none-any.whl",
       "pptx_a11y-0.5.0-py3-none-any.whl",
       "xlsx_a11y-0.1.0-py3-none-any.whl"
@@ -126,76 +126,134 @@ try:
         from engine_a11y.profile import get_xlsx_profile as get_profile
     elif ext == "pdf":
         from engine_a11y.profile import get_pdf_profile as get_profile
-        # Pure Python PDF audit bridge using pypdf
+        # Pure Python PDF audit & remediation bridge using pypdf
         import logging
         import warnings
         logging.getLogger("pypdf").setLevel(logging.ERROR)
         warnings.filterwarnings("ignore", module="pypdf")
         import pypdf
-        reader = pypdf.PdfReader(in_path)
-        has_title = bool(reader.metadata and reader.metadata.title)
-        has_lang = bool(reader.trailer.get("/Root", {}).get("/Lang"))
-        has_mark_info = bool(reader.trailer.get("/Root", {}).get("/MarkInfo", {}).get("/Marked"))
-        
-        findings = []
-        if not has_title:
-            findings.append({
-                "rule_id": "pdf-doc-title",
-                "severity": "serious",
-                "description": "Document title is missing from metadata dictionary",
-                "sc": "2.4.2",
-                "wcag_sc": "2.4.2",
-                "element_id": "trailer/Info",
-                "page_or_sheet": "Catalog",
-                "location": "Catalog > Metadata",
-                "disability_impact": "Screen reader users cannot determine document topic.",
-                "why_unfixable": "Automated tools cannot infer an accurate, descriptive title reflecting document intent.",
-                "fix": "Set a clear, concise title in Document Properties.",
-                "remediation_status": "remaining"
-            })
-        if not has_lang:
-            findings.append({
-                "rule_id": "pdf-doc-lang",
-                "severity": "critical",
-                "description": "Document natural language (/Lang) is not declared",
-                "sc": "3.1.1",
-                "wcag_sc": "3.1.1",
-                "element_id": "trailer/Root/Lang",
-                "page_or_sheet": "Catalog",
-                "location": "Catalog > /Root > /Lang",
-                "disability_impact": "Text-to-speech synthesizers cannot select appropriate pronunciation engine.",
-                "why_unfixable": "Language selection requires identifying primary language of human communication.",
-                "fix": "Specify natural language (e.g., 'en-US') in Document Catalog.",
-                "remediation_status": "remaining"
-            })
-        if not has_mark_info:
-            findings.append({
-                "rule_id": "pdf-doc-markinfo",
-                "severity": "critical",
-                "description": "Document is not tagged (/MarkInfo /Marked missing or false)",
-                "sc": "1.3.1",
-                "wcag_sc": "1.3.1",
-                "element_id": "trailer/Root/MarkInfo",
-                "page_or_sheet": "Catalog",
-                "location": "Catalog > /Root > /MarkInfo",
-                "disability_impact": "Assistive technology cannot determine logical structure or reading flow.",
-                "why_unfixable": "Full tagging requires reconstructing the logical structure tree and reading order.",
-                "fix": "Export with tags enabled from source authoring tool or tag structure elements.",
-                "remediation_status": "remaining"
-            })
+        from pypdf.generic import NameObject, TextStringObject, DictionaryObject, BooleanObject
 
+        def audit_pdf_findings(reader):
+            has_title = bool(reader.metadata and reader.metadata.title)
+            has_lang = bool(reader.trailer.get("/Root", {}).get("/Lang"))
+            has_mark_info = bool(reader.trailer.get("/Root", {}).get("/MarkInfo", {}).get("/Marked"))
+
+            f_list = []
+            if not has_title:
+                f_list.append({
+                    "rule_id": "pdf-doc-title",
+                    "severity": "serious",
+                    "description": "Document title is missing from metadata dictionary",
+                    "sc": "2.4.2",
+                    "wcag_sc": "2.4.2",
+                    "element_id": "trailer/Info",
+                    "page_or_sheet": "Catalog",
+                    "location": "Catalog > Metadata",
+                    "disability_impact": "Screen reader users cannot determine document topic.",
+                    "why_unfixable": "Automated tools cannot infer an accurate, descriptive title reflecting document intent.",
+                    "fix": "Set a clear, concise title in Document Properties.",
+                    "remediation_status": "remaining"
+                })
+            if not has_lang:
+                f_list.append({
+                    "rule_id": "pdf-doc-lang",
+                    "severity": "critical",
+                    "description": "Document natural language (/Lang) is not declared",
+                    "sc": "3.1.1",
+                    "wcag_sc": "3.1.1",
+                    "element_id": "trailer/Root/Lang",
+                    "page_or_sheet": "Catalog",
+                    "location": "Catalog > /Root > /Lang",
+                    "disability_impact": "Text-to-speech synthesizers cannot select appropriate pronunciation engine.",
+                    "why_unfixable": "Language selection requires identifying primary language of human communication.",
+                    "fix": "Specify natural language (e.g., 'en-US') in Document Catalog.",
+                    "remediation_status": "remaining"
+                })
+            if not has_mark_info:
+                f_list.append({
+                    "rule_id": "pdf-doc-markinfo",
+                    "severity": "critical",
+                    "description": "Document is not tagged (/MarkInfo /Marked missing or false)",
+                    "sc": "1.3.1",
+                    "wcag_sc": "1.3.1",
+                    "element_id": "trailer/Root/MarkInfo",
+                    "page_or_sheet": "Catalog",
+                    "location": "Catalog > /Root > /MarkInfo",
+                    "disability_impact": "Assistive technology cannot determine logical structure or reading flow.",
+                    "why_unfixable": "Full tagging requires reconstructing the logical structure tree and reading order.",
+                    "fix": "Export with tags enabled from source authoring tool or tag structure elements.",
+                    "remediation_status": "remaining"
+                })
+            return f_list
+
+        reader = pypdf.PdfReader(in_path)
+        before_findings = audit_pdf_findings(reader)
         before_res = {
             "file": "${fileName}",
             "sha256": "in-memory-wasm",
             "summary": {
-                "total": len(findings),
-                "blocking": sum(1 for f in findings if f.get("severity") in ("critical", "serious")),
-                "pass": len(findings) == 0
+                "total": len(before_findings),
+                "blocking": sum(1 for f in before_findings if f.get("severity") in ("critical", "serious")),
+                "pass": len(before_findings) == 0
             },
-            "findings": findings
+            "findings": before_findings
         }
-        after_res = before_res
-        rem_res = {"remediated": False, "reason": "Pure WASM PDF preview"}
+
+        # Attempt remediation if requested
+        writer = pypdf.PdfWriter()
+        for p in reader.pages:
+            writer.add_page(p)
+        if reader.metadata:
+            writer.add_metadata(reader.metadata)
+
+        has_title = bool(reader.metadata and reader.metadata.title)
+        has_lang = bool(reader.trailer.get("/Root", {}).get("/Lang"))
+        has_mark_info = bool(reader.trailer.get("/Root", {}).get("/MarkInfo", {}).get("/Marked"))
+        has_struct_tree = bool(reader.trailer.get("/Root", {}).get("/StructTreeRoot"))
+
+        fixes = []
+        if not has_title:
+            import os
+            base_title = os.path.splitext(os.path.basename(in_path))[0].replace("-", " ").replace("_", " ").title()
+            writer.add_metadata({NameObject("/Title"): TextStringObject(base_title)})
+            fixes.append("pdf-doc-title")
+
+        if not has_lang:
+            writer.root_object.update({
+                NameObject("/Lang"): TextStringObject("en-US")
+            })
+            fixes.append("pdf-doc-lang")
+
+        if not has_mark_info and has_struct_tree:
+            writer.root_object.update({
+                NameObject("/MarkInfo"): DictionaryObject({
+                    NameObject("/Marked"): BooleanObject(True)
+                })
+            })
+            fixes.append("pdf-doc-markinfo")
+
+        if fixes:
+            with open(out_path, "wb") as f_out:
+                writer.write(f_out)
+            r_after = pypdf.PdfReader(out_path)
+            after_findings = audit_pdf_findings(r_after)
+            after_res = {
+                "file": f"{os.path.splitext('${fileName}')[0]}_remediated.pdf",
+                "sha256": "in-memory-wasm",
+                "summary": {
+                    "total": len(after_findings),
+                    "blocking": sum(1 for f in after_findings if f.get("severity") in ("critical", "serious")),
+                    "pass": len(after_findings) == 0
+                },
+                "findings": after_findings
+            }
+            rem_res = {"remediated": True, "fixes_applied": fixes}
+            has_output_file = True
+        else:
+            after_res = before_res
+            rem_res = {"remediated": False, "reason": "No automated fixes applicable (human action required)"}
+            has_output_file = False
     else:
         raise ValueError(f"Unsupported document format: {ext}")
 
@@ -203,6 +261,7 @@ try:
         before_res = audit_mod.audit(in_path)
         rem_res = rem_mod.remediate(in_path, out_path)
         after_res = audit_mod.audit(out_path)
+        has_output_file = True
 
     md_report = render_md(before_res, after_result=after_res, profile=get_profile())
     html_report = render_html(md_report)
@@ -214,7 +273,7 @@ try:
         "remediation": rem_res,
         "md_report": md_report,
         "html_report": html_report,
-        "has_output_file": (ext != "pdf")
+        "has_output_file": has_output_file
     }
 except Exception as exc:
     output = {

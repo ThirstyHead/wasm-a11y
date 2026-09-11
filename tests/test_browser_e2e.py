@@ -63,7 +63,7 @@ def test_landing_page_dom_and_a11y(server):
             # Footer landmark & version badge
             footer = page.locator("footer[role='contentinfo']")
             assert footer.is_visible()
-            assert "v0.1.5" in footer.inner_text()
+            assert "v0.1.6" in footer.inner_text()
 
             browser.close()
     except Exception as exc:
@@ -243,6 +243,10 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             assert after_results.is_visible()
             assert "sample-test_remediated.pdf" in page.locator("#after-filename").inner_text()
 
+            # Remediated download button is enabled
+            download_btn = page.locator("#download-remediated-btn")
+            assert not download_btn.is_disabled()
+
             # View report modal dialog and verify accurate WCAG SC criteria mapping
             view_report_btn = page.locator("#view-report-btn")
             view_report_btn.click()
@@ -252,6 +256,8 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             body_text = report_body.inner_text()
             assert "Language of Page" in body_text or "3.1.1" in body_text
             assert "Info and Relationships" in body_text or "1.3.1" in body_text
+            assert "0 of 2 barriers (0.0% improvement)" not in body_text
+            assert "Great progress! You have resolved 0" not in body_text
 
             # Verify no spurious pypdf or Pyodide xref warning logs polluted the console
             pypdf_warnings = [w for w in console_warnings if "Ignoring wrong pointing object" in w]
