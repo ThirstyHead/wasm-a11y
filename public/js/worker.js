@@ -126,11 +126,14 @@ try:
                 "rule_id": "pdf-doc-title",
                 "severity": "serious",
                 "description": "Document title is missing from metadata dictionary",
+                "sc": "2.4.2",
                 "wcag_sc": "2.4.2",
                 "element_id": "trailer/Info",
                 "page_or_sheet": "Catalog",
                 "location": "Catalog > Metadata",
                 "disability_impact": "Screen reader users cannot determine document topic.",
+                "why_unfixable": "Automated tools cannot infer an accurate, descriptive title reflecting document intent.",
+                "fix": "Set a clear, concise title in Document Properties.",
                 "remediation_status": "remaining"
             })
         if not has_lang:
@@ -138,11 +141,14 @@ try:
                 "rule_id": "pdf-doc-lang",
                 "severity": "critical",
                 "description": "Document natural language (/Lang) is not declared",
+                "sc": "3.1.1",
                 "wcag_sc": "3.1.1",
                 "element_id": "trailer/Root/Lang",
                 "page_or_sheet": "Catalog",
                 "location": "Catalog > /Root > /Lang",
                 "disability_impact": "Text-to-speech synthesizers cannot select appropriate pronunciation engine.",
+                "why_unfixable": "Language selection requires identifying primary language of human communication.",
+                "fix": "Specify natural language (e.g., 'en-US') in Document Catalog.",
                 "remediation_status": "remaining"
             })
         if not has_mark_info:
@@ -150,11 +156,14 @@ try:
                 "rule_id": "pdf-doc-markinfo",
                 "severity": "critical",
                 "description": "Document is not tagged (/MarkInfo /Marked missing or false)",
+                "sc": "1.3.1",
                 "wcag_sc": "1.3.1",
                 "element_id": "trailer/Root/MarkInfo",
                 "page_or_sheet": "Catalog",
                 "location": "Catalog > /Root > /MarkInfo",
                 "disability_impact": "Assistive technology cannot determine logical structure or reading flow.",
+                "why_unfixable": "Full tagging requires reconstructing the logical structure tree and reading order.",
+                "fix": "Export with tags enabled from source authoring tool or tag structure elements.",
                 "remediation_status": "remaining"
             })
 
