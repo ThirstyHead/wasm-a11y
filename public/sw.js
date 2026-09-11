@@ -4,7 +4,7 @@
  * air-gapped document remediation with zero network egress.
  */
 
-const CACHE_NAME = "wasm-a11y-cache-v3";
+const CACHE_NAME = "wasm-a11y-cache-v4";
 
 const PRECACHE_URLS = [
   "./",
