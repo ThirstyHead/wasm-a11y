@@ -4,7 +4,7 @@
  * air-gapped document remediation with zero network egress.
  */
 
-const CACHE_NAME = "wasm-a11y-cache-v5";
+const CACHE_NAME = "wasm-a11y-cache-v6";
 
 const PRECACHE_URLS = [
   "./",
@@ -25,7 +25,7 @@ const PRECACHE_URLS = [
   "./wheels/pypdf-6.18.0-py3-none-any.whl",
   "./wheels/python_docx_ng-2.1.0-py3-none-any.whl",
   "./wheels/python_pptx-1.0.2-py3-none-any.whl",
-  "./wheels/engine_a11y-0.4.0-py3-none-any.whl",
+  "./wheels/engine_a11y-0.4.1-py3-none-any.whl",
   "./wheels/docx_a11y-0.5.0-py3-none-any.whl",
   "./wheels/pptx_a11y-0.5.0-py3-none-any.whl",
   "./wheels/xlsx_a11y-0.1.0-py3-none-any.whl"
