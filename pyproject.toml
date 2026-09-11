@@ -17,6 +17,7 @@ dev = [
     "pytest>=8.0",
     "build>=1.2",
     "playwright>=1.40",
+    "pypdf>=5.0.0",
 ]
 
 [project.scripts]

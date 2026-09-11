@@ -22,27 +22,30 @@ async function initializeWorker() {
   self.postMessage({ type: "STATUS", message: "Loading core XML and C extensions (lxml, pyyaml)..." });
   await pyodideInstance.loadPackage(["micropip", "lxml", "pyyaml"]);
 
-  const micropip = pyodideInstance.pyimport("micropip");
-
-  self.postMessage({ type: "STATUS", message: "Installing pure Python dependencies (openpyxl, markdown, python-docx-ng, python-pptx, pypdf)..." });
-  await micropip.install(["openpyxl", "markdown", "python-docx-ng", "python-pptx", "pypdf"]);
-
-  self.postMessage({ type: "STATUS", message: "Installing wasm-a11y engine wheels..." });
+  self.postMessage({ type: "STATUS", message: "Installing wasm-a11y studio engine wheels..." });
   
   // Dynamically resolve base URL for wheels relative to worker script
   // Handles root domains, localhost, and GitHub Pages subpaths (e.g. /wasm-a11y/)
   const baseUrl = new URL("../wheels/", self.location.href).href;
-  const wheelUrls = [
-    new URL("wcag_contrast_ratio-0.9-py3-none-any.whl", baseUrl).href,
-    new URL("engine_a11y-0.4.0-py3-none-any.whl", baseUrl).href,
-    new URL("docx_a11y-0.5.0-py3-none-any.whl", baseUrl).href,
-    new URL("pptx_a11y-0.5.0-py3-none-any.whl", baseUrl).href,
-    new URL("xlsx_a11y-0.1.0-py3-none-any.whl", baseUrl).href
+  const wheelFiles = [
+    "typing_extensions-4.16.0-py3-none-any.whl",
+    "et_xmlfile-2.0.0-py3-none-any.whl",
+    "xlsxwriter-3.2.9-py3-none-any.whl",
+    "wcag_contrast_ratio-0.9-py3-none-any.whl",
+    "markdown-3.10.3-py3-none-any.whl",
+    "openpyxl-3.1.5-py2.py3-none-any.whl",
+    "pypdf-6.18.0-py3-none-any.whl",
+    "python_docx_ng-2.1.0-py3-none-any.whl",
+    "python_pptx-1.0.2-py3-none-any.whl",
+    "engine_a11y-0.4.0-py3-none-any.whl",
+    "docx_a11y-0.5.0-py3-none-any.whl",
+    "pptx_a11y-0.5.0-py3-none-any.whl",
+    "xlsx_a11y-0.1.0-py3-none-any.whl"
   ];
 
-  for (const url of wheelUrls) {
-    const pkgName = url.split("/").pop();
-    self.postMessage({ type: "STATUS", message: `Installing ${pkgName}...` });
+  for (const file of wheelFiles) {
+    const url = new URL(file, baseUrl).href;
+    self.postMessage({ type: "STATUS", message: `Installing ${file}...` });
     await pyodideInstance.runPythonAsync(`
 import micropip
 await micropip.install('${url}', deps=False)

@@ -62,20 +62,33 @@ def build_wheels(
                     f"Failed to build wheel for {pkg}:\n{result.stderr}\nFallback:\n{fallback_res.stderr}"
                 )
 
-    # Ensure wcag-contrast-ratio wheel is also bundled if missing
-    wcag_wheels = list(target_dir.glob("wcag_contrast_ratio*.whl"))
-    if not wcag_wheels:
-        cmd_wcag = [
-            sys.executable,
-            "-m",
-            "pip",
-            "wheel",
-            "--no-deps",
-            "-w",
-            str(target_dir),
-            "wcag-contrast-ratio",
-        ]
-        subprocess.run(cmd_wcag, capture_output=True, text=True)
+    # Ensure pure Python dependencies are bundled
+    pure_deps = [
+        "wcag-contrast-ratio",
+        "openpyxl",
+        "markdown",
+        "pypdf",
+        "XlsxWriter",
+        "python-docx-ng",
+        "python-pptx",
+        "et_xmlfile",
+        "typing_extensions",
+    ]
+    for dep in pure_deps:
+        pattern = dep.replace("-", "_").replace(".", "_") + "*.whl"
+        matches = list(target_dir.glob(pattern)) or list(target_dir.glob(dep.lower() + "*.whl"))
+        if not matches:
+            cmd_dep = [
+                sys.executable,
+                "-m",
+                "pip",
+                "wheel",
+                "--no-deps",
+                "-w",
+                str(target_dir),
+                dep,
+            ]
+            subprocess.run(cmd_dep, capture_output=True, text=True)
 
     built_wheels = list(target_dir.glob("*.whl"))
     return built_wheels
