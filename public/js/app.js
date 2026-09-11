@@ -354,14 +354,6 @@ dialogDownloadReportBtn.addEventListener("click", () => {
 window.addEventListener("DOMContentLoaded", () => {
   initWorker();
   if ("serviceWorker" in navigator) {
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
-      }
-    });
-
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch((err) => {
       console.warn("ServiceWorker registration skipped or failed:", err);
     });
