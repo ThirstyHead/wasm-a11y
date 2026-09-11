@@ -9,58 +9,64 @@ importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js");
 
 let pyodideInstance = null;
 let isInitialized = false;
+let initPromise = null;
 
 async function initializeWorker() {
   if (isInitialized) return;
+  if (initPromise) return initPromise;
 
-  self.postMessage({ type: "STATUS", message: "Starting WebAssembly Python runtime..." });
-  
-  pyodideInstance = await loadPyodide({
-    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
-  });
+  initPromise = (async () => {
+    self.postMessage({ type: "STATUS", message: "Starting WebAssembly Python runtime..." });
+    
+    pyodideInstance = await loadPyodide({
+      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
+    });
 
-  self.postMessage({ type: "STATUS", message: "Loading core XML and C extensions (lxml, pyyaml)..." });
-  await pyodideInstance.loadPackage(["micropip", "lxml", "pyyaml"]);
+    self.postMessage({ type: "STATUS", message: "Loading core XML and C extensions (lxml, pyyaml)..." });
+    await pyodideInstance.loadPackage(["micropip", "lxml", "pyyaml"]);
 
-  self.postMessage({ type: "STATUS", message: "Installing wasm-a11y studio engine wheels..." });
-  
-  // Dynamically resolve base URL for wheels relative to worker script
-  // Handles root domains, localhost, and GitHub Pages subpaths (e.g. /wasm-a11y/)
-  const baseUrl = new URL("../wheels/", self.location.href).href;
-  const wheelFiles = [
-    "typing_extensions-4.16.0-py3-none-any.whl",
-    "et_xmlfile-2.0.0-py3-none-any.whl",
-    "xlsxwriter-3.2.9-py3-none-any.whl",
-    "wcag_contrast_ratio-0.9-py3-none-any.whl",
-    "markdown-3.10.3-py3-none-any.whl",
-    "openpyxl-3.1.5-py2.py3-none-any.whl",
-    "pypdf-6.18.0-py3-none-any.whl",
-    "python_docx_ng-2.1.0-py3-none-any.whl",
-    "python_pptx-1.0.2-py3-none-any.whl",
-    "engine_a11y-0.4.0-py3-none-any.whl",
-    "docx_a11y-0.5.0-py3-none-any.whl",
-    "pptx_a11y-0.5.0-py3-none-any.whl",
-    "xlsx_a11y-0.1.0-py3-none-any.whl"
-  ];
+    self.postMessage({ type: "STATUS", message: "Installing wasm-a11y studio engine wheels..." });
+    
+    // Dynamically resolve base URL for wheels relative to worker script
+    // Handles root domains, localhost, and GitHub Pages subpaths (e.g. /wasm-a11y/)
+    const baseUrl = new URL("../wheels/", self.location.href).href;
+    const wheelFiles = [
+      "typing_extensions-4.16.0-py3-none-any.whl",
+      "et_xmlfile-2.0.0-py3-none-any.whl",
+      "xlsxwriter-3.2.9-py3-none-any.whl",
+      "wcag_contrast_ratio-0.9-py3-none-any.whl",
+      "markdown-3.10.3-py3-none-any.whl",
+      "openpyxl-3.1.5-py2.py3-none-any.whl",
+      "pypdf-6.18.0-py3-none-any.whl",
+      "python_docx_ng-2.1.0-py3-none-any.whl",
+      "python_pptx-1.0.2-py3-none-any.whl",
+      "engine_a11y-0.4.0-py3-none-any.whl",
+      "docx_a11y-0.5.0-py3-none-any.whl",
+      "pptx_a11y-0.5.0-py3-none-any.whl",
+      "xlsx_a11y-0.1.0-py3-none-any.whl"
+    ];
 
-  for (const file of wheelFiles) {
-    const url = new URL(file, baseUrl).href;
-    self.postMessage({ type: "STATUS", message: `Installing ${file}...` });
-    await pyodideInstance.runPythonAsync(`
+    for (const file of wheelFiles) {
+      const url = new URL(file, baseUrl).href;
+      self.postMessage({ type: "STATUS", message: `Installing ${file}...` });
+      await pyodideInstance.runPythonAsync(`
 import micropip
 await micropip.install('${url}', deps=False)
-    `);
-  }
+      `);
+    }
 
-  await pyodideInstance.runPythonAsync(`
+    await pyodideInstance.runPythonAsync(`
 import logging
 import warnings
 logging.getLogger("pypdf").setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", module="pypdf")
-  `);
+    `);
 
-  isInitialized = true;
-  self.postMessage({ type: "READY" });
+    isInitialized = true;
+    self.postMessage({ type: "READY" });
+  })();
+
+  return initPromise;
 }
 
 self.onmessage = async (e) => {

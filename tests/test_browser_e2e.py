@@ -208,9 +208,9 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             # Wait for Pyodide worker initialization
             status = page.locator("#progress-status")
             ready = False
-            for _ in range(40):
+            for _ in range(60):
                 txt = status.inner_text().lower()
-                if "ready" in txt:
+                if "engine ready" in txt:
                     ready = True
                     break
                 time.sleep(1)
