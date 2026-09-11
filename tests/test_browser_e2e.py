@@ -187,6 +187,7 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             import pypdf
             writer = pypdf.PdfWriter()
             writer.add_blank_page(width=72, height=72)
+            writer.add_metadata({"/Title": "Sample Document Title"})
             with open(test_pdf, "wb") as f:
                 writer.write(f)
         except ImportError:
