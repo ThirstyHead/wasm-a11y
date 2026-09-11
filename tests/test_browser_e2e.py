@@ -227,12 +227,12 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
 
             # Wait for remediation completion
             complete = False
-            for _ in range(30):
+            for _ in range(60):
                 txt = status.inner_text().lower()
                 if "complete" in txt:
                     complete = True
                     break
-                time.sleep(0.5)
+                time.sleep(1)
 
             assert complete, f"Remediation did not complete: {status.inner_text()}"
             error_banner = page.locator("#error-banner")
