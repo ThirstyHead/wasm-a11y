@@ -47,6 +47,7 @@ const dialogDownloadReportBtn = document.getElementById("dialog-download-report-
 const a11yAnnouncer = document.getElementById("a11y-announcer");
 
 // Application State
+const APP_VERSION = "0.1.5";
 let worker = null;
 let currentFile = null;
 let currentFileData = null; // ArrayBuffer
@@ -70,7 +71,7 @@ function formatBytes(bytes) {
 
 function initWorker() {
   if (worker) return;
-  worker = new Worker("js/worker.js");
+  worker = new Worker(`js/worker.js?v=${APP_VERSION}`);
 
   worker.onmessage = (e) => {
     const data = e.data || {};
@@ -353,7 +354,7 @@ dialogDownloadReportBtn.addEventListener("click", () => {
 window.addEventListener("DOMContentLoaded", () => {
   initWorker();
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch((err) => {
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch((err) => {
       console.warn("ServiceWorker registration skipped or failed:", err);
     });
   }
