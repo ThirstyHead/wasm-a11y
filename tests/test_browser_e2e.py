@@ -174,3 +174,66 @@ def test_two_pane_storytelling_flow(server):
         if "Executable doesn't exist" in str(exc):
             pytest.skip("Playwright chromium browser not installed in this environment")
         raise
+
+
+def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
+    if not HAS_PLAYWRIGHT or sync_playwright is None:
+        pytest.skip("Playwright not installed")
+    try:
+        # Create minimal test PDF
+        import pypdf
+        writer = pypdf.PdfWriter()
+        writer.add_blank_page(width=72, height=72)
+        test_pdf = tmp_path / "sample-test.pdf"
+        with open(test_pdf, "wb") as f:
+            writer.write(f)
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(server)
+
+            # Wait for Pyodide worker initialization
+            status = page.locator("#progress-status")
+            ready = False
+            for _ in range(40):
+                txt = status.inner_text().lower()
+                if "ready" in txt:
+                    ready = True
+                    break
+                time.sleep(1)
+            assert ready, f"Pyodide failed to reach Ready status: {status.inner_text()}"
+
+            # Upload test PDF
+            file_input = page.locator("#file-input")
+            file_input.set_input_files(str(test_pdf))
+            time.sleep(0.5)
+
+            # Click Fix & Audit
+            remediate_btn = page.locator("#btn-remediate-primary")
+            remediate_btn.click()
+
+            # Wait for remediation completion
+            complete = False
+            for _ in range(30):
+                txt = status.inner_text().lower()
+                if "complete" in txt:
+                    complete = True
+                    break
+                time.sleep(0.5)
+
+            assert complete, f"Remediation did not complete: {status.inner_text()}"
+            error_banner = page.locator("#error-banner")
+            assert not error_banner.is_visible()
+
+            # Results view should be visible
+            after_results = page.locator("#after-results-view")
+            assert after_results.is_visible()
+            assert "sample-test_remediated.pdf" in page.locator("#after-filename").inner_text()
+
+            browser.close()
+    except Exception as exc:
+        if "Executable doesn't exist" in str(exc):
+            pytest.skip("Playwright chromium browser not installed in this environment")
+        raise
+
