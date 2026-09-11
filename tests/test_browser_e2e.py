@@ -240,6 +240,16 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             assert after_results.is_visible()
             assert "sample-test_remediated.pdf" in page.locator("#after-filename").inner_text()
 
+            # View report modal dialog and verify accurate WCAG SC criteria mapping
+            view_report_btn = page.locator("#view-report-btn")
+            view_report_btn.click()
+            report_dialog = page.locator("#report-dialog")
+            assert report_dialog.is_visible()
+            report_body = page.locator("#report-dialog-body")
+            body_text = report_body.inner_text()
+            assert "Language of Page" in body_text or "3.1.1" in body_text
+            assert "Info and Relationships" in body_text or "1.3.1" in body_text
+
             browser.close()
     except Exception as exc:
         if "Executable doesn't exist" in str(exc):
