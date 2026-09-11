@@ -24,8 +24,8 @@ async function initializeWorker() {
 
   const micropip = pyodideInstance.pyimport("micropip");
 
-  self.postMessage({ type: "STATUS", message: "Installing pure Python dependencies (openpyxl, markdown, pypdf)..." });
-  await micropip.install(["openpyxl", "markdown", "pypdf"]);
+  self.postMessage({ type: "STATUS", message: "Installing pure Python dependencies (openpyxl, markdown, python-docx-ng, python-pptx, pypdf)..." });
+  await micropip.install(["openpyxl", "markdown", "python-docx-ng", "python-pptx", "pypdf"]);
 
   self.postMessage({ type: "STATUS", message: "Installing wasm-a11y engine wheels..." });
   
@@ -41,11 +41,12 @@ async function initializeWorker() {
   ];
 
   for (const url of wheelUrls) {
-    try {
-      await micropip.install(url);
-    } catch (err) {
-      console.warn(`Failed to fetch ${url} directly, attempting fallback:`, err);
-    }
+    const pkgName = url.split("/").pop();
+    self.postMessage({ type: "STATUS", message: `Installing ${pkgName}...` });
+    await pyodideInstance.runPythonAsync(`
+import micropip
+await micropip.install('${url}', deps=False)
+    `);
   }
 
   isInitialized = true;
@@ -108,6 +109,7 @@ try:
         import xlsx_a11y.remediate as rem_mod
         from engine_a11y.profile import get_xlsx_profile as get_profile
     elif ext == "pdf":
+        from engine_a11y.profile import get_pdf_profile as get_profile
         # Pure Python PDF audit bridge using pypdf
         import pypdf
         reader = pypdf.PdfReader(in_path)
@@ -165,7 +167,6 @@ try:
         }
         after_res = before_res
         rem_res = {"remediated": False, "reason": "Pure WASM PDF preview"}
-        get_profile = lambda: {"application": "Adobe Acrobat Pro", "document_type": "PDF Document"}
     else:
         raise ValueError(f"Unsupported document format: {ext}")
 
