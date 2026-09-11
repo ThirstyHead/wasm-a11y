@@ -60,9 +60,10 @@ def test_landing_page_dom_and_a11y(server):
             file_input = page.locator("#file-input")
             assert file_input.get_attribute("accept") == ".docx,.pptx,.xlsx,.pdf"
 
-            # Footer landmark
+            # Footer landmark & version badge
             footer = page.locator("footer[role='contentinfo']")
             assert footer.is_visible()
+            assert "v0.1.5" in footer.inner_text()
 
             browser.close()
     except Exception as exc:

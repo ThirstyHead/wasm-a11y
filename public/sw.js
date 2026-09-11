@@ -4,7 +4,7 @@
  * air-gapped document remediation with zero network egress.
  */
 
-const CACHE_NAME = "wasm-a11y-cache-v4";
+const CACHE_NAME = "wasm-a11y-cache-v5";
 
 const PRECACHE_URLS = [
   "./",
@@ -57,29 +57,49 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+function isImmutableAsset(url) {
+  return url.includes("/wheels/") || url.includes("jsdelivr.net") || url.includes("pyodide");
+}
+
 self.addEventListener("fetch", (event) => {
   // Only handle GET requests
   if (event.request.method !== "GET") return;
 
+  const requestUrl = event.request.url;
+
+  // Cache-First strategy ONLY for large immutable wheels and Pyodide CDN binaries
+  if (isImmutableAsset(requestUrl)) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        });
+      })
+    );
+    return;
+  }
+
+  // Network-First strategy with cache fallback for application code (HTML, JS, CSS)
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        // Cache Pyodide CDN assets as they are fetched
-        if (
-          networkResponse &&
-          networkResponse.status === 200 &&
-          (event.request.url.includes("jsdelivr.net") || event.request.url.includes("/wheels/"))
-        ) {
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
         }
         return networkResponse;
-      });
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
