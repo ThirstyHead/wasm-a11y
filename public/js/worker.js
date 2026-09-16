@@ -22,8 +22,8 @@ async function initializeWorker() {
       indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
     });
 
-    self.postMessage({ type: "STATUS", message: "Loading core XML and C extensions (lxml, pyyaml)..." });
-    await pyodideInstance.loadPackage(["micropip", "lxml", "pyyaml"]);
+    self.postMessage({ type: "STATUS", message: "Loading core C extensions (lxml, pyyaml, pillow)..." });
+    await pyodideInstance.loadPackage(["micropip", "lxml", "pyyaml", "pillow"]);
 
     self.postMessage({ type: "STATUS", message: "Installing wasm-a11y studio engine wheels..." });
     
@@ -102,6 +102,7 @@ self.onmessage = async (e) => {
       // Python execution wrapper
       const pyScript = `
 import json
+import os
 import sys
 
 ext = "${ext}"
@@ -113,17 +114,23 @@ try:
     from engine_a11y.reports.html import render_html
 
     if ext == "docx":
-        import docx_a11y.audit as audit_mod
-        import docx_a11y.remediate as rem_mod
+        import docx_a11y.audit as docx_audit
+        import docx_a11y.remediate as docx_rem
         from engine_a11y.profile import get_docx_profile as get_profile
+        audit_fn = docx_audit.audit_file
+        rem_fn = docx_rem.remediate_document
     elif ext == "pptx":
-        import pptx_a11y.audit as audit_mod
-        import pptx_a11y.remediate as rem_mod
+        import pptx_a11y.audit as pptx_audit
+        import pptx_a11y.remediate as pptx_rem
         from engine_a11y.profile import get_pptx_profile as get_profile
+        audit_fn = pptx_audit.audit_file
+        rem_fn = pptx_rem.remediate_presentation
     elif ext == "xlsx":
-        import xlsx_a11y.audit as audit_mod
-        import xlsx_a11y.remediate as rem_mod
+        import xlsx_a11y.audit as xlsx_audit
+        import xlsx_a11y.remediate as xlsx_rem
         from engine_a11y.profile import get_xlsx_profile as get_profile
+        audit_fn = xlsx_audit.audit_file
+        rem_fn = xlsx_rem.remediate_file
     elif ext == "pdf":
         from engine_a11y.profile import get_pdf_profile as get_profile
         # Pure Python PDF audit & remediation bridge using pypdf
@@ -258,9 +265,15 @@ try:
         raise ValueError(f"Unsupported document format: {ext}")
 
     if ext != "pdf":
-        before_res = audit_mod.audit(in_path)
-        rem_res = rem_mod.remediate(in_path, out_path)
-        after_res = audit_mod.audit(out_path)
+        before_res = audit_fn(in_path)
+        before_res["file"] = "${fileName}"
+        if "findings" in before_res:
+            before_res["findings"] = [f.to_dict() if hasattr(f, "to_dict") else f for f in before_res["findings"]]
+        rem_res = rem_fn(in_path, out_path)
+        after_res = audit_fn(out_path)
+        after_res["file"] = f"{os.path.splitext('${fileName}')[0]}_remediated.{ext}"
+        if "findings" in after_res:
+            after_res["findings"] = [f.to_dict() if hasattr(f, "to_dict") else f for f in after_res["findings"]]
         has_output_file = True
 
     md_report = render_md(before_res, after_result=after_res, profile=get_profile())

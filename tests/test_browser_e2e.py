@@ -63,7 +63,7 @@ def test_landing_page_dom_and_a11y(server):
             # Footer landmark & version badge
             footer = page.locator("footer[role='contentinfo']")
             assert footer.is_visible()
-            assert "v0.1.7" in footer.inner_text()
+            assert "v0.1.8" in footer.inner_text()
 
             browser.close()
     except Exception as exc:
@@ -264,6 +264,71 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             # Verify no spurious pypdf or Pyodide xref warning logs polluted the console
             pypdf_warnings = [w for w in console_warnings if "Ignoring wrong pointing object" in w]
             assert len(pypdf_warnings) == 0, f"Spurious pypdf console warnings detected: {pypdf_warnings}"
+
+            browser.close()
+    except Exception as exc:
+        if "Executable doesn't exist" in str(exc):
+            pytest.skip("Playwright chromium browser not installed in this environment")
+        raise
+
+
+def test_pyodide_worker_docx_remediation(server, tmp_path):
+    if not HAS_PLAYWRIGHT or sync_playwright is None:
+        pytest.skip("Playwright not installed")
+    try:
+        from docx import Document
+
+        test_docx = tmp_path / "sample-test.docx"
+        doc = Document()
+        doc.add_paragraph("Sample document for WebAssembly accessibility remediation.")
+        doc.save(str(test_docx))
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(server)
+
+            status = page.locator("#progress-status")
+            ready = False
+            for _ in range(60):
+                txt = status.inner_text().lower()
+                if "engine ready" in txt:
+                    ready = True
+                    break
+                time.sleep(1)
+            assert ready, f"Pyodide failed to reach Ready status: {status.inner_text()}"
+
+            file_input = page.locator("#file-input")
+            file_input.set_input_files(str(test_docx))
+            time.sleep(0.5)
+
+            remediate_btn = page.locator("#btn-remediate-primary")
+            remediate_btn.click()
+
+            complete = False
+            for _ in range(60):
+                txt = status.inner_text().lower()
+                if "complete" in txt or "error" in txt:
+                    if "complete" in txt:
+                        complete = True
+                    break
+                time.sleep(1)
+
+            assert complete, f"DOCX remediation failed or timed out: {status.inner_text()}"
+            error_banner = page.locator("#error-banner")
+            assert not error_banner.is_visible()
+
+            after_results = page.locator("#after-results-view")
+            assert after_results.is_visible()
+            assert "sample-test_remediated.docx" in page.locator("#after-filename").inner_text()
+
+            download_btn = page.locator("#download-remediated-btn")
+            assert not download_btn.is_disabled()
+
+            view_report_btn = page.locator("#view-report-btn")
+            view_report_btn.click()
+            report_dialog = page.locator("#report-dialog")
+            assert report_dialog.is_visible()
 
             browser.close()
     except Exception as exc:
