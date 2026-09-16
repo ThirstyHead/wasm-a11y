@@ -47,7 +47,7 @@ const dialogDownloadReportBtn = document.getElementById("dialog-download-report-
 const a11yAnnouncer = document.getElementById("a11y-announcer");
 
 // Application State
-const APP_VERSION = "0.1.6";
+const APP_VERSION = "0.1.7";
 let worker = null;
 let currentFile = null;
 let currentFileData = null; // ArrayBuffer

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wasm-a11y"
-version = "0.1.0"
+version = "0.1.7"
 description = "WebAssembly zero-install digital accessibility audit and remediation studio"
 readme = "README.md"
 requires-python = ">=3.10"
