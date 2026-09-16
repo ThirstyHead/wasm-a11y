@@ -276,12 +276,42 @@ def test_pyodide_worker_docx_remediation(server, tmp_path):
     if not HAS_PLAYWRIGHT or sync_playwright is None:
         pytest.skip("Playwright not installed")
     try:
-        from docx import Document
-
         test_docx = tmp_path / "sample-test.docx"
-        doc = Document()
-        doc.add_paragraph("Sample document for WebAssembly accessibility remediation.")
-        doc.save(str(test_docx))
+        try:
+            from docx import Document
+
+            doc = Document()
+            doc.add_paragraph("Sample document for WebAssembly accessibility remediation.")
+            doc.save(str(test_docx))
+        except ImportError:
+            import zipfile
+
+            content_types = (
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+                '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n'
+                '  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n'
+                '  <Default Extension="xml" ContentType="application/xml"/>\n'
+                '  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>\n'
+                '</Types>'
+            )
+            rels = (
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+                '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n'
+                '  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>\n'
+                '</Relationships>'
+            )
+            document_xml = (
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+                '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n'
+                '  <w:body>\n'
+                '    <w:p><w:r><w:t>Sample document for WebAssembly accessibility remediation.</w:t></w:r></w:p>\n'
+                '  </w:body>\n'
+                '</w:document>'
+            )
+            with zipfile.ZipFile(test_docx, "w") as z:
+                z.writestr("[Content_Types].xml", content_types)
+                z.writestr("_rels/.rels", rels)
+                z.writestr("word/document.xml", document_xml)
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
