@@ -1,3 +1,4 @@
+from pathlib import Path
 import threading
 import time
 import pytest
@@ -63,7 +64,7 @@ def test_landing_page_dom_and_a11y(server):
             # Footer landmark & version badge
             footer = page.locator("footer[role='contentinfo']")
             assert footer.is_visible()
-            assert "v0.1.7" in footer.inner_text()
+            assert "v0.1.8" in footer.inner_text()
 
             browser.close()
     except Exception as exc:
@@ -264,6 +265,102 @@ def test_pyodide_worker_initialization_and_remediation(server, tmp_path):
             # Verify no spurious pypdf or Pyodide xref warning logs polluted the console
             pypdf_warnings = [w for w in console_warnings if "Ignoring wrong pointing object" in w]
             assert len(pypdf_warnings) == 0, f"Spurious pypdf console warnings detected: {pypdf_warnings}"
+
+            browser.close()
+    except Exception as exc:
+        if "Executable doesn't exist" in str(exc):
+            pytest.skip("Playwright chromium browser not installed in this environment")
+        raise
+
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
+
+@pytest.mark.parametrize("ext", ["docx", "pptx", "xlsx", "pdf"])
+def test_mvp_gui_remediation_all_formats(server, ext):
+    """MVP Guarantee: The Web GUI must successfully remediate all 4 core formats:
+    - DOCX (Word Document)
+    - PPTX (PowerPoint Presentation)
+    - XLSX (Excel Spreadsheet)
+    - PDF (Portable Document Format)
+
+    Verifies:
+    1. Drag-and-drop / file input loads document
+    2. Step 2 'Fix & Audit' triggers WebAssembly execution
+    3. Output results view renders with remediated file
+    4. Remediated file download Blob is generated and enabled
+    5. In-app accessibility report viewer modal displays audited findings
+    """
+    if not HAS_PLAYWRIGHT or sync_playwright is None:
+        pytest.skip("Playwright not installed")
+
+    fixture_file = FIXTURES_DIR / f"sample.{ext}"
+    assert fixture_file.exists(), f"Missing fixture file for format: {fixture_file}"
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(server)
+
+            # Wait for Pyodide WebAssembly runtime to reach engine ready
+            status = page.locator("#progress-status")
+            ready = False
+            for _ in range(60):
+                txt = status.inner_text().lower()
+                if "engine ready" in txt:
+                    ready = True
+                    break
+                time.sleep(1)
+            assert ready, f"Pyodide runtime failed to reach Ready state: {status.inner_text()}"
+
+            # Upload document
+            file_input = page.locator("#file-input")
+            file_input.set_input_files(str(fixture_file))
+            time.sleep(0.5)
+
+            # Trigger Step 2: Fix & Audit
+            remediate_btn = page.locator("#btn-remediate-primary")
+            assert not remediate_btn.is_disabled(), "Step 2 button should be enabled after file selection"
+            remediate_btn.click()
+
+            # Wait for remediation completion
+            complete = False
+            for _ in range(60):
+                txt = status.inner_text().lower()
+                if "complete" in txt or "error" in txt:
+                    if "complete" in txt:
+                        complete = True
+                    break
+                time.sleep(1)
+
+            assert complete, f"[{ext.upper()}] Remediation failed or timed out: {status.inner_text()}"
+
+            # Verify no error banner is displayed
+            error_banner = page.locator("#error-banner")
+            assert not error_banner.is_visible(), f"[{ext.upper()}] Error banner is visible: {error_banner.inner_text()}"
+
+            # Verify Step 3: After results view is displayed
+            after_results = page.locator("#after-results-view")
+            assert after_results.is_visible(), f"[{ext.upper()}] Results view not visible"
+
+            # Verify output filename format
+            expected_output_name = f"sample_remediated.{ext}"
+            assert expected_output_name in page.locator("#after-filename").inner_text()
+
+            # Verify download button is enabled and has filesize
+            download_btn = page.locator("#download-remediated-btn")
+            assert not download_btn.is_disabled(), f"[{ext.upper()}] Download button should be enabled"
+            filesize_text = page.locator("#after-filesize").inner_text()
+            assert filesize_text != "", f"[{ext.upper()}] Missing output filesize"
+
+            # Verify in-app report viewer modal opens and displays content
+            view_report_btn = page.locator("#view-report-btn")
+            view_report_btn.click()
+            report_dialog = page.locator("#report-dialog")
+            assert report_dialog.is_visible(), f"[{ext.upper()}] Report dialog did not open"
+            report_body = page.locator("#report-dialog-body")
+            assert len(report_body.inner_text().strip()) > 50, f"[{ext.upper()}] Report body is empty"
 
             browser.close()
     except Exception as exc:
