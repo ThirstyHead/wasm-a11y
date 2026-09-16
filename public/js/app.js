@@ -1,9 +1,9 @@
 /**
  * wasm-a11y Main UI Application Controller
  * Provides a two-pane Before/After storytelling architecture matching the desktop suite:
- * - Left Pane: 1. Before: Original Documents
- * - Center Bridge: Remediation Flow ("✨ Fix & Audit ➔")
- * - Right Pane: 2. After: Remediated Files & Reports
+ * - Left Pane: Step 1: Before: Original Documents
+ * - Center Bridge: Remediation Flow ("✨ Step 2: Fix & Audit ➔")
+ * - Right Pane: Step 3: After: Remediated Files & Reports
  * - Modal Dialog: In-App Report Viewer (matching ReportViewerDialog)
  */
 
@@ -132,7 +132,7 @@ function handleFileSelected(file) {
     // Update Center Bridge
     btnRemediatePrimary.disabled = false;
     updateStatus("Document loaded. Ready to remediate.");
-    announce(`Document ${file.name} loaded. Click Fix & Audit in center bridge.`);
+    announce(`Document ${file.name} loaded. Click Step 2: Fix & Audit in center bridge.`);
   };
 
   reader.onerror = () => {

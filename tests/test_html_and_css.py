@@ -56,13 +56,13 @@ def test_two_pane_storytelling_layout_and_banner():
 
     # Two-pane storytelling sections
     assert 'id="pane-before"' in content
-    assert "1. Before: Original Documents" in content
+    assert "Step 1: Before: Original Documents" in content
 
     assert 'id="center-bridge"' in content
-    assert "Fix & Audit" in content
+    assert "Step 2: Fix & Audit" in content
 
     assert 'id="pane-after"' in content
-    assert "2. After: Remediated Files & Reports" in content
+    assert "Step 3: After: Remediated Files & Reports" in content
 
     # Report viewer modal dialog
     assert '<dialog id="report-dialog"' in content
