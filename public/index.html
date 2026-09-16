@@ -45,10 +45,10 @@
       <!-- Two-Pane Storyboard Layout matching Desktop GUI -->
       <div class="l-storyboard">
         
-        <!-- Left Pane: 1. Before: Original Documents -->
+        <!-- Left Pane: Step 1: Before: Original Documents -->
         <section id="pane-before" class="m-pane" aria-labelledby="pane-before-title">
           <div class="m-pane__header">
-            <h2 id="pane-before-title" class="m-pane__title">1. Before: Original Documents</h2>
+            <h2 id="pane-before-title" class="m-pane__title">Step 1: Before: Original Documents</h2>
             <p class="m-pane__subtitle">Select documents needing accessibility remediation. Original files remain safe and unmodified.</p>
             <div class="m-pane__toolbar">
               <button type="button" id="browse-btn" class="m-button m-button--secondary">
@@ -82,7 +82,7 @@
                 </div>
               </div>
               <div id="before-findings-preview" style="font-size: 0.875rem; color: var(--color-text-muted);">
-                Click "Fix & Audit ➔" in the center bridge to inspect and remediate accessibility barriers.
+                Click "Step 2: Fix & Audit ➔" in the center bridge to inspect and remediate accessibility barriers.
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@
           <div class="m-center-bridge__arrow" aria-hidden="true">➔</div>
           
           <button type="button" id="btn-remediate-primary" class="m-button--bridge" disabled>
-            ✨ Fix & Audit ➔
+            ✨ Step 2: Fix & Audit ➔
           </button>
           
           <label style="font-size: 0.85rem; color: var(--color-text); display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
@@ -106,10 +106,10 @@
           <div id="progress-status" class="m-status-text" style="font-size: 0.85rem; font-weight: 600;">Initializing WebAssembly engine...</div>
         </section>
 
-        <!-- Right Pane: 2. After: Remediated Files & Reports -->
+        <!-- Right Pane: Step 3: After: Remediated Files & Reports -->
         <section id="pane-after" class="m-pane" aria-labelledby="pane-after-title">
           <div class="m-pane__header">
-            <h2 id="pane-after-title" class="m-pane__title">2. After: Remediated Files & Reports</h2>
+            <h2 id="pane-after-title" class="m-pane__title">Step 3: After: Remediated Files & Reports</h2>
             <p class="m-pane__subtitle">Accessible output documents. Review resolved barriers and remaining author actions.</p>
           </div>
 
@@ -118,7 +118,7 @@
             <div id="after-empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 250px; text-align: center; color: var(--color-text-subtle); border: 2px dashed var(--color-border); border-radius: 8px; padding: 1.5rem;">
               <span style="font-size: 2rem; margin-bottom: 0.5rem;" aria-hidden="true">📊</span>
               <p style="margin: 0; font-weight: 600;">No Remediated Output Yet</p>
-              <p style="margin: 0.25rem 0 0; font-size: 0.825rem;">Load a document and click "Fix & Audit ➔" to generate accessible files.</p>
+              <p style="margin: 0.25rem 0 0; font-size: 0.825rem;">Load a document and click "Step 2: Fix & Audit ➔" to generate accessible files.</p>
             </div>
 
             <!-- Results View -->

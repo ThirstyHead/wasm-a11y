@@ -151,20 +151,21 @@ def test_two_pane_storytelling_flow(server):
             pane_before = page.locator("#pane-before")
             assert pane_before.is_visible()
             text_before = pane_before.text_content() or ""
-            assert "1. Before: Original Documents" in text_before
+            assert "Step 1: Before: Original Documents" in text_before
 
             # Center bridge check
             center_bridge = page.locator("#center-bridge")
             assert center_bridge.is_visible()
             remediate_btn = page.locator("#btn-remediate-primary")
             assert remediate_btn.is_visible()
+            assert "Step 2: Fix & Audit" in (remediate_btn.text_content() or "")
             assert page.evaluate("document.getElementById('btn-remediate-primary').hasAttribute('disabled')")
 
             # Pane After check
             pane_after = page.locator("#pane-after")
             assert pane_after.is_visible()
             text_after = pane_after.text_content() or ""
-            assert "2. After: Remediated Files & Reports" in text_after
+            assert "Step 3: After: Remediated Files & Reports" in text_after
 
             # Report dialog check
             report_dialog = page.locator("#report-dialog")
